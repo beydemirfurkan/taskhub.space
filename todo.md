@@ -1,0 +1,7 @@
+- Task cardına tıklanıldığı zaman detay açılmıyor.
+- Sayfa tamamen ingilizce olabilmeli.
+- Dark mode & Light mode özelliği gelmeli.
+- Fontlar biraz daha minimal olabilir. 
+- Sadece kanban değil, liste görünümünü de destekleyelim. 
+- Ek olarak neler ekleyebiliriz? 
+- Ortak çalışma nasıl olacak? tasklar da assign yapısı var mı? şuan taskı oluşturan kişi taska atanan kişiyi falan nasıl görücez? şuan göremiyor gibiyiz. 

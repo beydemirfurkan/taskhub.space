@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum TaskPriority {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model workspace {
+  id        String             @id // Clerk Organization ID
+  name      String
+  members   workspace_member[]
+  tasks     task[]
+  tags      tag[]
+}
+
+model workspace_member {
+  id             String    @id @default(cuid())
+  workspace_id   String
+  user_id        String    // Clerk User ID
+  role           Role      @default(MEMBER)
+  workspace      workspace @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
+  assigned_tasks task[]
+  @@unique([workspace_id, user_id])
+}
+
+model task {
+  id            String         @id @default(cuid())
+  title         String
+  description   String?        @db.Text
+  status        TaskStatus     @default(TODO)
+  priority      TaskPriority   @default(NONE)
+  start_date    DateTime?
+  due_date      DateTime?
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  workspace_id  String
+  workspace     workspace      @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
+  assignee_id   String?
+  assignee      workspace_member? @relation(fields: [assignee_id], references: [id], onUpdate: NoAction, onDelete: SetNull)
+  parent_id     String?
+  parent        task?          @relation("TaskHierarchy", fields: [parent_id], references: [id], onUpdate: NoAction, onDelete: Cascade)
+  sub_tasks     task[]         @relation("TaskHierarchy")
+  tags          task_tag[]
+  attachments   attachment[]
+}
+
+model tag {
+  id           String     @id @default(cuid())
+  name         String
+  color        String?
+  workspace_id String
+  workspace    workspace  @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
+  tasks        task_tag[]
+}
+
+model task_tag {
+  task_id String
+  tag_id  String
+  task    task   @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  tag     tag    @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+  @@id([task_id, tag_id])
+}
+
+model attachment {
+  id          String   @id @default(cuid())
+  file_url    String
+  file_name   String
+  task_id     String
+  task        task     @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  uploaded_at DateTime @default(now())
+}
