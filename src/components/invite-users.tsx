@@ -67,13 +67,13 @@ export function InviteUsers({ workspaceId, workspaceName, trigger }: InviteUsers
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      alert('Geçerli bir email adresi girin');
+      alert('Please enter a valid email address');
       return;
     }
 
     // Check if email already exists
     if (pendingInvites.some(invite => invite.email === email)) {
-      alert('Bu email adresi zaten davet listesinde');
+      alert('This email is already in the invite list');
       return;
     }
 
@@ -112,7 +112,7 @@ export function InviteUsers({ workspaceId, workspaceName, trigger }: InviteUsers
       );
 
       const successful = responses.filter(r => r.ok).length;
-      alert(`${successful} davet başarıyla gönderildi!`);
+      alert(`${successful} invites sent successfully!`);
       
       if (successful === pendingInvites.length) {
         setPendingInvites([]);
@@ -120,7 +120,7 @@ export function InviteUsers({ workspaceId, workspaceName, trigger }: InviteUsers
       }
     } catch (error) {
       console.error('Error sending invites:', error);
-      alert('Davet gönderirken bir hata oluştu');
+      alert('An error occurred while sending invites');
     } finally {
       setLoading(false);
     }
@@ -132,7 +132,7 @@ export function InviteUsers({ workspaceId, workspaceName, trigger }: InviteUsers
         {trigger || (
           <Button size="sm">
             <UserPlus className="w-4 h-4 mr-2" />
-            Kullanıcı Davet Et
+            Invite Users
           </Button>
         )}
       </DialogTrigger>
@@ -141,10 +141,10 @@ export function InviteUsers({ workspaceId, workspaceName, trigger }: InviteUsers
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="w-5 h-5" />
-            Kullanıcı Davet Et
+            Invite Users
           </DialogTitle>
           <p className="text-sm text-gray-600">
-            <strong>{workspaceName}</strong> çalışma alanına kullanıcı davet edin
+            Invite users to <strong>{workspaceName}</strong> workspace
           </p>
         </DialogHeader>
 
@@ -153,11 +153,11 @@ export function InviteUsers({ workspaceId, workspaceName, trigger }: InviteUsers
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-gray-900 flex items-center gap-2">
               <LinkIcon className="w-4 h-4" />
-              Davet Linki
+              Invite Link
             </h3>
             <div className="flex items-center gap-2">
               <Input
-                value={inviteLink || 'Davet linki oluşturmak için kopyala butonuna tıklayın'}
+                value={inviteLink || 'Click copy button to generate invite link'}
                 readOnly
                 className="flex-1 text-xs"
               />
@@ -170,7 +170,7 @@ export function InviteUsers({ workspaceId, workspaceName, trigger }: InviteUsers
               </Button>
             </div>
             <p className="text-xs text-gray-500">
-              Bu linki paylaşarak kullanıcıları doğrudan çalışma alanına davet edebilirsiniz
+              Share this link to directly invite users to the workspace
             </p>
           </div>
 
@@ -178,13 +178,13 @@ export function InviteUsers({ workspaceId, workspaceName, trigger }: InviteUsers
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-gray-900 flex items-center gap-2">
               <Mail className="w-4 h-4" />
-              Email ile Davet
+              Email Invitation
             </h3>
             
             <div className="flex items-center gap-2">
               <Input
                 type="email"
-                placeholder="Email adresi"
+                placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addEmailInvite()}
@@ -201,7 +201,7 @@ export function InviteUsers({ workspaceId, workspaceName, trigger }: InviteUsers
                   onClick={() => setRole('MEMBER')}
                 >
                   <User className="w-3 h-3 mr-1 inline" />
-                  Üye
+                  Member
                 </button>
                 <button
                   className={`px-3 py-1.5 text-xs rounded-r-md transition-colors ${
@@ -212,12 +212,12 @@ export function InviteUsers({ workspaceId, workspaceName, trigger }: InviteUsers
                   onClick={() => setRole('ADMIN')}
                 >
                   <Crown className="w-3 h-3 mr-1 inline" />
-                  Yönetici
+                  Admin
                 </button>
               </div>
               
               <Button size="sm" onClick={addEmailInvite} disabled={!email.trim()}>
-                Ekle
+                Add
               </Button>
             </div>
           </div>
@@ -226,7 +226,7 @@ export function InviteUsers({ workspaceId, workspaceName, trigger }: InviteUsers
           {pendingInvites.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-sm font-medium text-gray-900">
-                Bekleyen Davetler ({pendingInvites.length})
+                Pending Invites ({pendingInvites.length})
               </h3>
               
               <div className="space-y-2 max-h-32 overflow-y-auto">
@@ -254,12 +254,12 @@ export function InviteUsers({ workspaceId, workspaceName, trigger }: InviteUsers
                         {invite.role === 'ADMIN' ? (
                           <>
                             <Crown className="w-3 h-3 mr-1" />
-                            Yönetici
+                            Admin
                           </>
                         ) : (
                           <>
                             <User className="w-3 h-3 mr-1" />
-                            Üye
+                            Member
                           </>
                         )}
                       </Badge>
@@ -282,11 +282,11 @@ export function InviteUsers({ workspaceId, workspaceName, trigger }: InviteUsers
           {pendingInvites.length > 0 && (
             <div className="flex justify-end gap-2 pt-4 border-t border-gray-200">
               <Button variant="outline" onClick={() => setPendingInvites([])}>
-                Temizle
+                Clear
               </Button>
               <Button onClick={sendInvites} disabled={loading}>
                 <Send className="w-4 h-4 mr-2" />
-                {loading ? 'Gönderiliyor...' : `${pendingInvites.length} Davet Gönder`}
+                {loading ? 'Sending...' : `Send ${pendingInvites.length} Invites`}
               </Button>
             </div>
           )}

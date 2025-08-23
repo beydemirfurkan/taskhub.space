@@ -43,15 +43,15 @@ interface TaskFilters {
 }
 
 const statusOptions = [
-  { value: 'TODO', label: 'Yapılacak', color: 'bg-slate-100 text-slate-700' },
-  { value: 'IN_PROGRESS', label: 'Devam Ediyor', color: 'bg-blue-100 text-blue-700' },
-  { value: 'DONE', label: 'Tamamlandı', color: 'bg-green-100 text-green-700' }
+  { value: 'TODO', label: 'To Do', color: 'bg-slate-100 text-slate-700' },
+  { value: 'IN_PROGRESS', label: 'In Progress', color: 'bg-blue-100 text-blue-700' },
+  { value: 'DONE', label: 'Done', color: 'bg-green-100 text-green-700' }
 ];
 
 const priorityOptions = [
-  { value: 'LOW', label: 'Düşük', color: 'bg-emerald-100 text-emerald-700' },
-  { value: 'MEDIUM', label: 'Orta', color: 'bg-amber-100 text-amber-700' },
-  { value: 'HIGH', label: 'Yüksek', color: 'bg-red-100 text-red-700' }
+  { value: 'LOW', label: 'Low', color: 'bg-emerald-100 text-emerald-700' },
+  { value: 'MEDIUM', label: 'Medium', color: 'bg-amber-100 text-amber-700' },
+  { value: 'HIGH', label: 'High', color: 'bg-red-100 text-red-700' }
 ];
 
 export function TaskSearchFilter({ 
@@ -79,7 +79,7 @@ export function TaskSearchFilter({
     onFilter(filters);
   }, [filters, onFilter]);
 
-  const updateFilter = (key: keyof TaskFilters, value: any) => {
+  const updateFilter = (key: keyof TaskFilters, value: TaskFilters[keyof TaskFilters]) => {
     setFilters(prev => ({
       ...prev,
       [key]: value
@@ -116,11 +116,11 @@ export function TaskSearchFilter({
 
   const getFilterSummary = () => {
     const parts = [];
-    if (filters.status?.length) parts.push(`${filters.status.length} durum`);
-    if (filters.priority?.length) parts.push(`${filters.priority.length} öncelik`);
-    if (filters.assignee?.length) parts.push(`${filters.assignee.length} atanan`);
-    if (filters.tags?.length) parts.push(`${filters.tags.length} etiket`);
-    if (filters.dateRange?.from || filters.dateRange?.to) parts.push('tarih aralığı');
+    if (filters.status?.length) parts.push(`${filters.status.length} status`);
+    if (filters.priority?.length) parts.push(`${filters.priority.length} priority`);
+    if (filters.assignee?.length) parts.push(`${filters.assignee.length} assignee`);
+    if (filters.tags?.length) parts.push(`${filters.tags.length} tags`);
+    if (filters.dateRange?.from || filters.dateRange?.to) parts.push('date range');
     return parts.join(', ');
   };
 
@@ -130,7 +130,7 @@ export function TaskSearchFilter({
       <div className="relative flex-1 max-w-md">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
         <Input
-          placeholder="Görev ara..."
+          placeholder="Search tasks..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10"
@@ -151,8 +151,7 @@ export function TaskSearchFilter({
       <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" size="sm" className="relative">
-            <SlidersHorizontal className="w-4 h-4 mr-2" />
-            Filtreler
+            <SlidersHorizontal className="w-4 h-4" />
             {getActiveFilterCount() > 0 && (
               <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs flex items-center justify-center bg-blue-500">
                 {getActiveFilterCount()}
@@ -165,11 +164,11 @@ export function TaskSearchFilter({
           <div className="space-y-4">
             {/* Header */}
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium">Filtreler</h3>
+              <h3 className="text-sm font-medium">Filters</h3>
               {getActiveFilterCount() > 0 && (
                 <Button size="sm" variant="ghost" onClick={clearFilters}>
                   <X className="w-4 h-4 mr-1" />
-                  Temizle
+                  Clear
                 </Button>
               )}
             </div>
@@ -178,7 +177,7 @@ export function TaskSearchFilter({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <CheckSquare className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium">Durum</span>
+                <span className="text-sm font-medium">Status</span>
               </div>
               <div className="flex flex-wrap gap-1">
                 {statusOptions.map(option => (
@@ -203,7 +202,7 @@ export function TaskSearchFilter({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Flag className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium">Öncelik</span>
+                <span className="text-sm font-medium">Priority</span>
               </div>
               <div className="flex flex-wrap gap-1">
                 {priorityOptions.map(option => (
@@ -229,7 +228,7 @@ export function TaskSearchFilter({
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm font-medium">Atanan Kişi</span>
+                  <span className="text-sm font-medium">Assignee</span>
                 </div>
                 <div className="space-y-1 max-h-32 overflow-y-auto">
                   {availableAssignees.map(assignee => (
@@ -258,7 +257,7 @@ export function TaskSearchFilter({
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Hash className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm font-medium">Etiketler</span>
+                  <span className="text-sm font-medium">Tags</span>
                 </div>
                 <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
                   {availableTags.map(tag => (
@@ -286,12 +285,12 @@ export function TaskSearchFilter({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium">Tarih Aralığı</span>
+                <span className="text-sm font-medium">Date Range</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <Input
                   type="date"
-                  placeholder="Başlangıç"
+                  placeholder="Start"
                   value={filters.dateRange?.from || ''}
                   onChange={(e) => updateFilter('dateRange', {
                     ...filters.dateRange,
@@ -301,7 +300,7 @@ export function TaskSearchFilter({
                 />
                 <Input
                   type="date"
-                  placeholder="Bitiş"
+                  placeholder="End"
                   value={filters.dateRange?.to || ''}
                   onChange={(e) => updateFilter('dateRange', {
                     ...filters.dateRange,
@@ -316,7 +315,7 @@ export function TaskSearchFilter({
             {getActiveFilterCount() > 0 && (
               <div className="pt-2 border-t border-gray-200">
                 <p className="text-xs text-gray-600">
-                  Aktif filtreler: {getFilterSummary()}
+                  Active filters: {getFilterSummary()}
                 </p>
               </div>
             )}

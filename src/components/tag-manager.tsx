@@ -117,7 +117,7 @@ export function TagManager({ workspaceId, trigger }: TagManagerProps) {
   };
 
   const deleteTag = async (id: string) => {
-    if (!confirm('Bu etiketi silmek istediğinizden emin misiniz?')) return;
+    if (!confirm('Are you sure you want to delete this tag?')) return;
 
     try {
       const response = await fetch(`/api/tags/${id}`, {
@@ -180,7 +180,7 @@ export function TagManager({ workspaceId, trigger }: TagManagerProps) {
         {trigger || (
           <Button variant="outline" size="sm">
             <TagIcon className="w-4 h-4 mr-2" />
-            Etiketleri Yönet
+            Manage Tags
           </Button>
         )}
       </DialogTrigger>
@@ -189,17 +189,17 @@ export function TagManager({ workspaceId, trigger }: TagManagerProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Hash className="w-5 h-5" />
-            Etiket Yönetimi
+            Tag Management
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Create New Tag */}
           <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
-            <h3 className="text-sm font-medium text-gray-900">Yeni Etiket</h3>
+            <h3 className="text-sm font-medium text-gray-900">New Tag</h3>
             <div className="flex items-center gap-2">
               <Input
-                placeholder="Etiket adı"
+                placeholder="Tag name"
                 value={newTag.name}
                 onChange={(e) => setNewTag(prev => ({ ...prev, name: e.target.value }))}
                 onKeyDown={(e) => e.key === 'Enter' && createTag()}
@@ -218,16 +218,16 @@ export function TagManager({ workspaceId, trigger }: TagManagerProps) {
           {/* Existing Tags */}
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-gray-900">
-              Mevcut Etiketler ({tags.length})
+              Existing Tags ({tags.length})
             </h3>
             
             {loading ? (
               <div className="text-center py-4 text-sm text-gray-500">
-                Yükleniyor...
+                Loading...
               </div>
             ) : tags.length === 0 ? (
               <div className="text-center py-4 text-sm text-gray-500">
-                Henüz etiket bulunmuyor
+                No tags found
               </div>
             ) : (
               <div className="space-y-2 max-h-64 overflow-y-auto">

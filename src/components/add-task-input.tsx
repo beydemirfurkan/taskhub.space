@@ -82,7 +82,7 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
       >
         <div className="flex items-center space-x-2 text-muted-foreground">
           <Plus className="w-4 h-4" />
-          <span className="text-sm">Yeni görev ekle...</span>
+          <span className="text-sm">Add new task...</span>
         </div>
       </div>
     );
@@ -92,7 +92,7 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
     <form onSubmit={handleSubmit} className="p-4 border border-gray-200 rounded-lg bg-white">
       <div className="space-y-4">
         <Input
-          placeholder="Görev başlığı..."
+          placeholder="Task title..."
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="border border-gray-200 px-3 py-2 text-sm font-medium focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500"
@@ -100,7 +100,7 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
         />
         
         <Textarea
-          placeholder="Açıklama ekle..."
+          placeholder="Add description..."
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="border border-gray-200 px-3 py-2 text-sm resize-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500"
@@ -113,15 +113,15 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-6 px-2">
                   <Calendar className="w-3 h-3 mr-1" />
-                  <span className="text-xs">Tarih</span>
+                  <span className="text-xs">Date</span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-80 p-3">
                 <div className="space-y-3">
-                  <h4 className="font-medium text-sm">Tarihler</h4>
+                  <h4 className="font-medium text-sm">Dates</h4>
                   <div className="grid gap-2">
                     <div>
-                      <label className="text-xs text-muted-foreground">Başlangıç Tarihi</label>
+                      <label className="text-xs text-muted-foreground">Start Date</label>
                       <Input
                         type="date"
                         value={startDate}
@@ -130,7 +130,7 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-muted-foreground">Bitiş Tarihi</label>
+                      <label className="text-xs text-muted-foreground">Due Date</label>
                       <Input
                         type="date"
                         value={dueDate}
@@ -147,12 +147,12 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-6 px-2">
                   <Flag className="w-3 h-3 mr-1" />
-                  <span className="text-xs">Öncelik</span>
+                  <span className="text-xs">Priority</span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-48 p-2">
                 <div className="space-y-1">
-                  <h4 className="font-medium text-sm px-2 py-1">Öncelik Seç</h4>
+                  <h4 className="font-medium text-sm px-2 py-1">Select Priority</h4>
                   {(['NONE', 'LOW', 'MEDIUM', 'HIGH'] as const).map((p) => (
                     <Button
                       key={p}
@@ -161,9 +161,9 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
                       onClick={() => setPriority(p)}
                       className="w-full justify-start text-xs"
                     >
-                      {p === 'NONE' ? 'Yok' : 
-                       p === 'LOW' ? 'Düşük' : 
-                       p === 'MEDIUM' ? 'Orta' : 'Yüksek'}
+                      {p === 'NONE' ? 'None' : 
+                       p === 'LOW' ? 'Low' : 
+                       p === 'MEDIUM' ? 'Medium' : 'High'}
                     </Button>
                   ))}
                 </div>
@@ -175,12 +175,12 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
                 <PopoverTrigger asChild>
                   <Button variant="ghost" size="sm" className="h-6 px-2">
                     <Hash className="w-3 h-3 mr-1" />
-                    <span className="text-xs">Etiketler</span>
+                    <span className="text-xs">Tags</span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-64 p-3">
                   <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Etiket Seç</h4>
+                    <h4 className="font-medium text-sm">Select Tags</h4>
                     <div className="max-h-32 overflow-y-auto space-y-1">
                       {availableTags.map((tag) => (
                         <label
@@ -214,10 +214,10 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
           
           <div className="flex items-center space-x-2">
             <Button type="button" variant="ghost" size="sm" onClick={handleCancel}>
-              İptal
+              Cancel
             </Button>
             <Button type="submit" size="sm" disabled={!title.trim()}>
-              Ekle
+              Add
             </Button>
           </div>
         </div>
@@ -226,17 +226,17 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
           <div className="flex items-center space-x-2 flex-wrap">
             {priority !== 'NONE' && (
               <Badge variant="outline" className="text-xs">
-                Öncelik: {priority === 'LOW' ? 'Düşük' : priority === 'MEDIUM' ? 'Orta' : 'Yüksek'}
+                Priority: {priority === 'LOW' ? 'Low' : priority === 'MEDIUM' ? 'Medium' : 'High'}
               </Badge>
             )}
             {startDate && (
               <Badge variant="outline" className="text-xs">
-                Başlangıç: {new Date(startDate).toLocaleDateString('tr-TR')}
+                Start: {new Date(startDate).toLocaleDateString('en-US')}
               </Badge>
             )}
             {dueDate && (
               <Badge variant="outline" className="text-xs">
-                Bitiş: {new Date(dueDate).toLocaleDateString('tr-TR')}
+                Due: {new Date(dueDate).toLocaleDateString('en-US')}
               </Badge>
             )}
             {selectedTags.map(tagId => {

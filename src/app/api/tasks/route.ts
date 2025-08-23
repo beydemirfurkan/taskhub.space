@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
     const tasks = await prisma.task.findMany({
       where: {
         workspace_id: workspace.id,
+        parent_id: null, // Only show parent tasks, not subtasks
       },
       include: {
         assignee: true,
@@ -35,8 +36,18 @@ export async function GET(request: NextRequest) {
             tag: true,
           },
         },
-        sub_tasks: true,
+        sub_tasks: {
+          include: {
+            assignee: true,
+          },
+        },
         attachments: true,
+        _count: {
+          select: {
+            sub_tasks: true,
+            attachments: true,
+          },
+        },
       },
       orderBy: {
         created_at: 'desc',
@@ -73,7 +84,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, description, priority, status, assignee_id, due_date, start_date } = body;
+    const { title, description, priority, status, assignee_id, due_date, start_date, parent_id, workspace_id } = body;
 
     if (!title) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
@@ -85,10 +96,11 @@ export async function POST(request: NextRequest) {
         description,
         priority: priority || 'NONE',
         status: status || 'TODO',
-        workspace_id: workspace.id,
+        workspace_id: workspace_id || workspace.id,
         assignee_id,
         due_date: due_date ? new Date(due_date) : null,
         start_date: start_date ? new Date(start_date) : null,
+        parent_id,
       },
       include: {
         assignee: true,
@@ -97,8 +109,18 @@ export async function POST(request: NextRequest) {
             tag: true,
           },
         },
-        sub_tasks: true,
+        sub_tasks: {
+          include: {
+            assignee: true,
+          },
+        },
         attachments: true,
+        _count: {
+          select: {
+            sub_tasks: true,
+            attachments: true,
+          },
+        },
       },
     });
 

@@ -16,8 +16,10 @@ import { TaskDetailModal } from './task-detail-modal';
 import { TaskSearchFilter } from './task-search-filter';
 import { TagManager } from './tag-manager';
 import { InviteUsers } from './invite-users';
+import { ViewToggle, ViewMode } from './view-toggle';
+import { TaskListView } from './task-list-view';
 import { Button } from './ui/button';
-import { Users } from 'lucide-react';
+import { Users, Hash } from 'lucide-react';
 
 interface Task {
   id: string;
@@ -31,6 +33,7 @@ interface Task {
   start_date?: string;
   created_at?: string;
   updated_at?: string;
+  workspace_id?: string;
   assignee?: {
     user_id: string;
   } | null;
@@ -51,6 +54,18 @@ interface Task {
     sub_tasks?: number;
     attachments?: number;
   };
+  sub_tasks?: Array<{
+    id: string;
+    title: string;
+    status: 'TODO' | 'IN_PROGRESS' | 'DONE';
+    priority: 'NONE' | 'LOW' | 'MEDIUM' | 'HIGH';
+    due_date?: string;
+    created_at?: string;
+    assignee?: {
+      user_id: string;
+    } | null;
+  }>;
+  [key: string]: unknown;
 }
 
 interface TaskFilters {
@@ -67,12 +82,13 @@ interface TaskFilters {
 interface Column {
   id: string;
   name: string;
+  [key: string]: unknown;
 }
 
 const columns: Column[] = [
-  { id: 'TODO', name: 'Yapılacak' },
-  { id: 'IN_PROGRESS', name: 'Devam Ediyor' },
-  { id: 'DONE', name: 'Tamamlandı' },
+  { id: 'TODO', name: 'To Do' },
+  { id: 'IN_PROGRESS', name: 'In Progress' },
+  { id: 'DONE', name: 'Done' },
 ];
 
 export function KanbanBoardComponent() {
@@ -86,10 +102,11 @@ export function KanbanBoardComponent() {
   const [filters, setFilters] = useState<TaskFilters>({});
   const [availableTags, setAvailableTags] = useState<Array<{ id: string; name: string; color: string; }>>([]);
   const [availableAssignees, setAvailableAssignees] = useState<Array<{ id: string; user_id: string; }>>([]);
+  const [currentView, setCurrentView] = useState<ViewMode>('kanban');
   
   // Mock workspace data - replace with real data
   const workspaceId = 'default-workspace';
-  const workspaceName = 'Kişisel Çalışma Alanı';
+  const workspaceName = 'Personal Workspace';
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -215,16 +232,13 @@ export function KanbanBoardComponent() {
     setAvailableAssignees(Array.from(assignees.values()));
   }, [tasks]);
 
-  const handleDataChange = async (newTasks: Task[]) => {
-    setTasks(newTasks);
-  };
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
     setIsTaskModalOpen(true);
   };
 
-  const handleTaskSave = async (updatedTask: Task) => {
+  const handleTaskSave = async (updatedTask: any) => {
     try {
       const token = await getToken();
       const response = await fetch(`/api/tasks/${updatedTask.id}`, {
@@ -284,10 +298,28 @@ export function KanbanBoardComponent() {
     const activeTask = tasks.find(task => task.id === active.id);
     if (!activeTask) return;
 
+    // Check if dropped on a column or another task
+    let newStatus: string;
     const overColumn = columns.find(col => col.id === over.id);
-    const newStatus = overColumn?.id || activeTask.status;
+    
+    if (overColumn) {
+      // Dropped on a column
+      newStatus = overColumn.id;
+    } else {
+      // Dropped on another task, find which column that task belongs to
+      const overTask = tasks.find(task => task.id === over.id);
+      newStatus = overTask?.status || activeTask.status;
+    }
 
     if (activeTask.status !== newStatus) {
+      // Optimistically update UI first
+      const updatedTasks = tasks.map(task => 
+        task.id === activeTask.id 
+          ? { ...task, status: newStatus as Task['status'], column: newStatus }
+          : task
+      );
+      setTasks(updatedTasks);
+
       try {
         const token = await getToken();
         const response = await fetch(`/api/tasks/${activeTask.id}`, {
@@ -301,15 +333,14 @@ export function KanbanBoardComponent() {
           }),
         });
 
-        if (response.ok) {
-          const updatedTasks = tasks.map(task => 
-            task.id === activeTask.id 
-              ? { ...task, status: newStatus as Task['status'], column: newStatus }
-              : task
-          );
-          setTasks(updatedTasks);
+        if (!response.ok) {
+          // Revert on error
+          setTasks(tasks);
+          console.error('Failed to update task status');
         }
       } catch (error) {
+        // Revert on error  
+        setTasks(tasks);
         console.error('Error updating task status:', error);
       }
     }
@@ -366,7 +397,7 @@ export function KanbanBoardComponent() {
   if (!isLoaded) {
     return (
       <div className="text-center py-20">
-        <p className="text-muted-foreground">Yükleniyor...</p>
+        <p className="text-muted-foreground">Loading...</p>
       </div>
     );
   }
@@ -374,7 +405,7 @@ export function KanbanBoardComponent() {
   if (!userId) {
     return (
       <div className="text-center py-20">
-        <p className="text-muted-foreground">Lütfen giriş yapın.</p>
+        <p className="text-muted-foreground">Please sign in.</p>
       </div>
     );
   }
@@ -382,7 +413,7 @@ export function KanbanBoardComponent() {
   if (loading) {
     return (
       <div className="text-center py-20">
-        <p className="text-muted-foreground">Görevler yükleniyor...</p>
+        <p className="text-muted-foreground">Loading tasks...</p>
       </div>
     );
   }
@@ -390,25 +421,26 @@ export function KanbanBoardComponent() {
   return (
     <div className="h-full space-y-6">
       {/* Header Controls */}
-      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-white p-4 rounded-lg border border-gray-200">
-        <div className="flex items-center gap-4">
-          <h1 className="text-xl font-semibold text-gray-900">Görev Yönetimi</h1>
-          <div className="flex items-center gap-2">
-            <TagManager workspaceId={workspaceId} />
-            <InviteUsers 
-              workspaceId={workspaceId} 
-              workspaceName={workspaceName}
-              trigger={
-                <Button variant="outline" size="sm">
-                  <Users className="w-4 h-4 mr-2" />
-                  Davet Et
-                </Button>
-              }
-            />
-          </div>
+      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+        <div className="flex items-center gap-3">
+          <TagManager workspaceId={workspaceId} trigger={
+            <Button variant="outline" size="sm">
+              <Hash className="w-4 h-4" />
+            </Button>
+          } />
+          <InviteUsers 
+            workspaceId={workspaceId} 
+            workspaceName={workspaceName}
+            trigger={
+              <Button variant="outline" size="sm">
+                <Users className="w-4 h-4" />
+              </Button>
+            }
+          />
         </div>
         
         <div className="flex items-center gap-3">
+          <ViewToggle view={currentView} onViewChange={setCurrentView} />
           <TaskSearchFilter
             onSearch={handleSearch}
             onFilter={handleFilter}
@@ -419,57 +451,109 @@ export function KanbanBoardComponent() {
         </div>
       </div>
 
-      {/* Task Creation */}
-      <div className="bg-white p-4 rounded-lg border border-gray-200">
-        <AddTaskInput 
-          onTaskCreate={handleTaskCreate} 
-          availableTags={availableTags}
-        />
-      </div>
       
-      {/* Kanban Board */}
-      <KanbanProvider
-        columns={columns}
-        data={filteredTasks}
-        onDataChange={handleDataChange}
-        onDragEnd={handleDragEnd}
-        className="min-h-[600px]"
-      >
-        {(column) => (
-          <KanbanBoard key={column.id} id={column.id}>
-            <KanbanHeader className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-              <div className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-900">{column.name}</span>
-                  <span className="bg-white text-gray-600 text-xs font-medium px-2 py-1 rounded-full border">
-                    {filteredTasks.filter(task => task.column === column.id).length}
-                  </span>
-                </div>
-                
-                {searchQuery || Object.keys(filters).some(key => {
-                  const value = filters[key as keyof TaskFilters];
-                  return Array.isArray(value) ? value.length > 0 : !!value;
-                }) ? (
-                  <div className="text-xs text-gray-500">
-                    {tasks.filter(task => task.column === column.id).length} toplam
+
+      {/* Content Area */}
+      {currentView === 'kanban' ? (
+        <KanbanProvider
+          columns={columns}
+          data={filteredTasks}
+          onDragEnd={handleDragEnd}
+          className="min-h-[600px]"
+        >
+          {(column) => (
+            <KanbanBoard key={column.id} id={column.id}>
+              <KanbanHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 border-b border-gray-200 dark:border-gray-600">
+                <div className="flex items-center justify-between p-4">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-gray-900 dark:text-white">{column.name}</span>
+                    <span className="bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-2 py-1 rounded-full border dark:border-gray-600">
+                      {filteredTasks.filter(task => task.column === column.id).length}
+                    </span>
                   </div>
-                ) : null}
-              </div>
-            </KanbanHeader>
-            <KanbanCards id={column.id} className="p-4 space-y-3">
-              {(task) => (
-                <KanbanCard key={task.id} id={task.id} name={task.name}>
-                  <TaskCard 
-                    task={task} 
-                    onClick={() => handleTaskClick(task)}
-                    className="w-full"
+                  
+                  {searchQuery || Object.keys(filters).some(key => {
+                    const value = filters[key as keyof TaskFilters];
+                    return Array.isArray(value) ? value.length > 0 : !!value;
+                  }) ? (
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {tasks.filter(task => task.column === column.id).length} total
+                    </div>
+                  ) : null}
+                </div>
+              </KanbanHeader>
+              <KanbanCards id={column.id} className="p-4 space-y-3">
+                {(task) => (
+                  <KanbanCard key={task.id} id={task.id} name={task.name} column={task.column}>
+                    <TaskCard 
+                      task={task as Task} 
+                      onClick={() => handleTaskClick(task as Task)}
+                      className="w-full"
+                    />
+                  </KanbanCard>
+                )}
+              </KanbanCards>
+              {column.id === 'TODO' && (
+                <div className="p-4">
+                  <AddTaskInput 
+                    onTaskCreate={handleTaskCreate} 
+                    availableTags={availableTags}
                   />
-                </KanbanCard>
+                </div>
               )}
-            </KanbanCards>
-          </KanbanBoard>
-        )}
-      </KanbanProvider>
+            </KanbanBoard>
+          )}
+        </KanbanProvider>
+      ) : (
+        <TaskListView 
+          tasks={filteredTasks}
+          onTaskClick={handleTaskClick}
+          onTaskCreate={handleTaskCreate}
+          availableTags={availableTags}
+          onTaskUpdate={async (taskId: string, updates: Partial<Task>) => {
+            try {
+              const token = await getToken();
+              const response = await fetch(`/api/tasks/${taskId}`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(updates),
+              });
+
+              if (response.ok) {
+                const updated = await response.json();
+                const formattedTask: Task = {
+                  id: updated.id,
+                  name: updated.title,
+                  column: updated.status,
+                  title: updated.title,
+                  description: updated.description,
+                  status: updated.status,
+                  priority: updated.priority,
+                  due_date: updated.due_date,
+                  start_date: updated.start_date,
+                  created_at: updated.created_at,
+                  updated_at: updated.updated_at,
+                  assignee: updated.assignee,
+                  tags: updated.tags,
+                  attachments: updated.attachments,
+                  _count: updated._count,
+                };
+                
+                setTasks(prevTasks => 
+                  prevTasks.map(task => 
+                    task.id === taskId ? formattedTask : task
+                  )
+                );
+              }
+            } catch (error) {
+              console.error('Error updating task:', error);
+            }
+          }}
+        />
+      )}
 
       {/* Task Detail Modal */}
       <TaskDetailModal

@@ -52,11 +52,11 @@ export function FileDropzone({
 
   const validateFile = (file: File): string | null => {
     if (file.size > maxSize) {
-      return `Dosya boyutu ${(maxSize / 1024 / 1024).toFixed(0)}MB'ı aşamaz`;
+      return `File size cannot exceed ${(maxSize / 1024 / 1024).toFixed(0)}MB`;
     }
     
     if (!acceptedTypes.includes(file.type)) {
-      return 'Desteklenmeyen dosya türü';
+      return 'Unsupported file type';
     }
     
     return null;
@@ -68,7 +68,7 @@ export function FileDropzone({
     if (!taskId) {
       setFiles(prev => prev.map(f => 
         f.file === file 
-          ? { ...f, status: 'error', error: 'Task ID bulunamadı' }
+          ? { ...f, status: 'error', error: 'Task ID not found' }
           : f
       ));
       return;
@@ -230,15 +230,15 @@ export function FileDropzone({
           <Upload className={`mx-auto h-8 w-8 ${isDragOver ? 'text-blue-500' : 'text-gray-400'}`} />
           <div className="mt-2">
             <p className="text-sm font-medium text-gray-900">
-              Dosyaları buraya sürükleyin veya tıklayın
+              Drag files here or click to select
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              Maksimum {(maxSize / 1024 / 1024).toFixed(0)}MB, 
-              {acceptedTypes.includes('image/jpeg') && ' Resim,'}
+              Maximum {(maxSize / 1024 / 1024).toFixed(0)}MB, 
+              {acceptedTypes.includes('image/jpeg') && ' Image,'}
               {acceptedTypes.includes('application/pdf') && ' PDF,'}
-              {acceptedTypes.includes('text/plain') && ' Metin'}
+              {acceptedTypes.includes('text/plain') && ' Text,'}
               {acceptedTypes.includes('application/msword') && ' Word'}
-              {' dosyaları desteklenir'}
+              {' files supported'}
             </p>
           </div>
         </div>

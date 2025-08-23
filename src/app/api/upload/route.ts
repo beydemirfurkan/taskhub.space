@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
@@ -68,12 +69,22 @@ export async function POST(request: NextRequest) {
 
     const fileUrl = `/uploads/${fileName}`;
 
+    // Save attachment to database
+    const attachment = await prisma.attachment.create({
+      data: {
+        file_name: file.name,
+        file_url: fileUrl,
+        task_id: taskId,
+      }
+    });
+
     return NextResponse.json({
       success: true,
       fileUrl,
       fileName: file.name,
       fileSize: file.size,
-      fileType: file.type
+      fileType: file.type,
+      attachmentId: attachment.id
     }, { status: 201 });
 
   } catch (error) {

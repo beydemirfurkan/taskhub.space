@@ -77,7 +77,7 @@ export const KanbanBoard = ({ id, children, className }: KanbanBoardProps) => {
   return (
     <div
       className={cn(
-        'flex size-full min-h-40 flex-col divide-y overflow-hidden rounded-md border bg-gray-50 text-xs ring-2 transition-all',
+        'flex size-full min-h-40 flex-col divide-y overflow-hidden rounded-md border bg-gray-50 dark:bg-gray-900 text-xs ring-2 transition-all',
         isOver ? 'ring-blue-500' : 'ring-transparent',
         className
       )}
@@ -93,12 +93,12 @@ export type KanbanCardProps<T extends KanbanItemProps = KanbanItemProps> = T & {
   className?: string;
 };
 
-export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
+export function KanbanCard<T extends KanbanItemProps>({
   id,
   name,
   children,
   className,
-}: KanbanCardProps<T>) => {
+}: KanbanCardProps<T>) {
   const {
     attributes,
     listeners,
@@ -120,15 +120,24 @@ export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
     <>
       <div 
         style={style} 
-        {...listeners} 
-        {...attributes} 
         ref={setNodeRef}
         className={cn(
-          'cursor-grab rounded-md',
-          isDragging && 'pointer-events-none cursor-grabbing opacity-30',
+          'rounded-md relative group',
+          isDragging && 'pointer-events-none opacity-30',
           className
         )}
       >
+        <div 
+          {...listeners} 
+          {...attributes}
+          className="absolute top-2 left-2 w-4 h-6 cursor-grab hover:bg-gray-200/50 rounded flex flex-col justify-center items-center gap-0.5 z-10 opacity-0 group-hover:opacity-60 transition-opacity"
+          title="Drag to move"
+        >
+          <div className="w-1 h-1 bg-gray-400 rounded-full" />
+          <div className="w-1 h-1 bg-gray-400 rounded-full" />
+          <div className="w-1 h-1 bg-gray-400 rounded-full" />
+          <div className="w-1 h-1 bg-gray-400 rounded-full" />
+        </div>
         {children ?? <p className="m-0 font-medium text-sm p-3 bg-white border border-gray-200 rounded-md">{name}</p>}
       </div>
       {activeCardId === id && (
@@ -146,7 +155,7 @@ export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
       )}
     </>
   );
-};
+}
 
 export type KanbanCardsProps<T extends KanbanItemProps = KanbanItemProps> =
   Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'id'> & {
@@ -154,11 +163,11 @@ export type KanbanCardsProps<T extends KanbanItemProps = KanbanItemProps> =
     id: string;
   };
 
-export const KanbanCards = <T extends KanbanItemProps = KanbanItemProps>({
+export function KanbanCards<T extends KanbanItemProps>({
   children,
   className,
   ...props
-}: KanbanCardsProps<T>) => {
+}: KanbanCardsProps<T>) {
   const { data } = useContext(KanbanContext) as KanbanContextProps<T>;
   const filteredData = data.filter((item) => item.column === props.id);
   const items = filteredData.map((item) => item.id);
@@ -176,7 +185,7 @@ export const KanbanCards = <T extends KanbanItemProps = KanbanItemProps>({
       <ScrollBar orientation="vertical" />
     </ScrollArea>
   );
-};
+}
 
 export type KanbanHeaderProps = HTMLAttributes<HTMLDivElement>;
 
@@ -198,9 +207,9 @@ export type KanbanProviderProps<
   onDragOver?: (event: DragOverEvent) => void;
 };
 
-export const KanbanProvider = <
-  T extends KanbanItemProps = KanbanItemProps,
-  C extends KanbanColumnProps = KanbanColumnProps,
+export function KanbanProvider<
+  T extends KanbanItemProps,
+  C extends KanbanColumnProps,
 >({
   children,
   onDragStart,
@@ -211,7 +220,7 @@ export const KanbanProvider = <
   data,
   onDataChange,
   ...props
-}: KanbanProviderProps<T, C>) => {
+}: KanbanProviderProps<T, C>) {
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
   const sensors = useSensors(
@@ -337,4 +346,4 @@ export const KanbanProvider = <
       </DndContext>
     </KanbanContext.Provider>
   );
-};
+}
