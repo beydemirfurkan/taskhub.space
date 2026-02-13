@@ -5,11 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { 
-  Calendar, 
-  User, 
-  Flag, 
-  Hash, 
+import {
+  Calendar,
+  User,
+  Flag,
+  Hash,
   CheckCircle2,
   Circle,
   Timer,
@@ -74,9 +74,9 @@ const priorityConfig = {
 };
 
 const statusConfig = {
-  TODO: { label: 'To Do', color: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300', icon: Circle },
-  IN_PROGRESS: { label: 'In Progress', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300', icon: Timer },
-  DONE: { label: 'Done', color: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300', icon: CheckCircle2 },
+  TODO: { label: 'To Do', color: 'bg-slate-100 text-slate-700 dark:bg-slate-900/50 dark:text-slate-300', icon: Circle },
+  IN_PROGRESS: { label: 'In Progress', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300', icon: Timer },
+  DONE: { label: 'Done', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300', icon: CheckCircle2 },
 };
 
 function getDaysUntilDue(dueDate: string): { days: number; isOverdue: boolean; isToday: boolean; isTomorrow: boolean } {
@@ -84,7 +84,7 @@ function getDaysUntilDue(dueDate: string): { days: number; isOverdue: boolean; i
   const due = new Date(dueDate);
   const diffTime = due.getTime() - today.getTime();
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
+
   return {
     days: diffDays,
     isOverdue: diffDays < 0,
@@ -95,10 +95,10 @@ function getDaysUntilDue(dueDate: string): { days: number; isOverdue: boolean; i
 
 export function TaskListView({ tasks, onTaskClick, onTaskUpdate, onTaskCreate, availableTags = [] }: TaskListViewProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="grid grid-cols-12 gap-4 p-4 border-b border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300">
-        <div className="col-span-4">Task</div>
+      <div className="grid grid-cols-12 gap-4 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
+        <div className="col-span-4 pl-2">Task</div>
         <div className="col-span-2">Status</div>
         <div className="col-span-2">Priority</div>
         <div className="col-span-2">Assignee</div>
@@ -106,17 +106,17 @@ export function TaskListView({ tasks, onTaskClick, onTaskUpdate, onTaskCreate, a
       </div>
 
       {/* Task Rows */}
-      <div className="divide-y divide-gray-200 dark:divide-gray-600">
+      <div className="space-y-2">
         {tasks.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-            No tasks found
+          <div className="p-12 text-center border-2 border-dashed border-border/40 rounded-xl bg-secondary/5">
+            <div className="text-muted-foreground font-medium">No tasks found</div>
           </div>
         ) : (
           tasks.map((task) => {
             const statusInfo = statusConfig[task.status];
             const priorityInfo = priorityConfig[task.priority];
             const StatusIcon = statusInfo.icon;
-            
+
             const dueDateInfo = task.due_date ? getDaysUntilDue(task.due_date) : null;
             const isOverdue = dueDateInfo?.isOverdue;
             const isDueToday = dueDateInfo?.isToday;
@@ -127,9 +127,9 @@ export function TaskListView({ tasks, onTaskClick, onTaskUpdate, onTaskCreate, a
                 key={task.id}
                 onClick={() => onTaskClick(task)}
                 className={cn(
-                  "grid grid-cols-12 gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors",
-                  isOverdue && "bg-red-50/50 dark:bg-red-900/20",
-                  isDueToday && "bg-amber-50/50 dark:bg-amber-900/20"
+                  "group grid grid-cols-12 gap-4 p-4 bg-card rounded-xl border border-border/40 hover:border-border hover:shadow-md hover:-translate-y-0.5 cursor-pointer transition-all duration-200 items-center",
+                  isOverdue && "border-red-200/50 bg-red-50/30 dark:bg-red-900/10",
+                  isDueToday && "border-amber-200/50 bg-amber-50/30 dark:bg-amber-900/10"
                 )}
               >
                 {/* Task Title & Description */}
@@ -149,7 +149,7 @@ export function TaskListView({ tasks, onTaskClick, onTaskUpdate, onTaskCreate, a
                         <span
                           key={tag.id}
                           className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
-                          style={{ 
+                          style={{
                             backgroundColor: tag.color ? `${tag.color}25` : '#f1f5f9',
                             color: tag.color || '#64748b',
                           }}
@@ -170,15 +170,15 @@ export function TaskListView({ tasks, onTaskClick, onTaskUpdate, onTaskCreate, a
                     onClick={(e) => {
                       e.stopPropagation();
                       if (onTaskUpdate) {
-                        const nextStatus = task.status === 'TODO' ? 'IN_PROGRESS' : 
-                                         task.status === 'IN_PROGRESS' ? 'DONE' : 'TODO';
+                        const nextStatus = task.status === 'TODO' ? 'IN_PROGRESS' :
+                          task.status === 'IN_PROGRESS' ? 'DONE' : 'TODO';
                         onTaskUpdate(task.id, { status: nextStatus });
                       }
                     }}
                     className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-600 p-1 rounded transition-colors"
                   >
-                    <StatusIcon className="w-4 h-4 text-gray-500" />
-                    <Badge className={statusInfo.color} variant="secondary">
+                    <StatusIcon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <Badge variant="outline" className={cn("font-medium border-transparent bg-opacity-50", statusInfo.color)}>
                       {statusInfo.label}
                     </Badge>
                   </button>
@@ -228,9 +228,9 @@ export function TaskListView({ tasks, onTaskClick, onTaskUpdate, onTaskCreate, a
                         {isOverdue && `${Math.abs(dueDateInfo!.days)} days overdue`}
                         {isDueToday && 'Today'}
                         {isDueTomorrow && 'Tomorrow'}
-                        {!isOverdue && !isDueToday && !isDueTomorrow && 
-                          new Date(task.due_date).toLocaleDateString('en-US', { 
-                            day: 'numeric', 
+                        {!isOverdue && !isDueToday && !isDueTomorrow &&
+                          new Date(task.due_date).toLocaleDateString('en-US', {
+                            day: 'numeric',
                             month: 'short'
                           })
                         }
@@ -242,10 +242,12 @@ export function TaskListView({ tasks, onTaskClick, onTaskUpdate, onTaskCreate, a
             );
           })
         )}
-        
+
         {/* Add New Task Row */}
         {onTaskCreate && (
-          <AddNewTaskRow onTaskCreate={onTaskCreate} availableTags={availableTags} />
+          <div className="pt-2">
+            <AddNewTaskRow onTaskCreate={onTaskCreate} availableTags={availableTags} />
+          </div>
         )}
       </div>
     </div>
@@ -253,9 +255,9 @@ export function TaskListView({ tasks, onTaskClick, onTaskUpdate, onTaskCreate, a
 }
 
 // Add New Task Row Component
-function AddNewTaskRow({ 
-  onTaskCreate, 
-  availableTags 
+function AddNewTaskRow({
+  onTaskCreate,
+  availableTags
 }: {
   onTaskCreate: (task: {
     title: string;
@@ -297,18 +299,20 @@ function AddNewTaskRow({
     return (
       <div
         onClick={() => setIsActive(true)}
-        className="grid grid-cols-12 gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors border-2 border-dashed border-gray-200 dark:border-gray-600"
+        className="grid grid-cols-12 gap-4 p-3 border border-dashed border-border/40 rounded-xl cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 group items-center"
       >
-        <div className="col-span-12 flex items-center gap-2 text-gray-500 dark:text-gray-400">
-          <Plus className="w-4 h-4" />
-          <span className="text-sm">Add new task...</span>
+        <div className="col-span-12 flex items-center gap-2 text-muted-foreground group-hover:text-primary transition-colors pl-2">
+          <div className="bg-secondary group-hover:bg-primary/10 p-1 rounded-md transition-colors">
+            <Plus className="w-4 h-4" />
+          </div>
+          <span className="text-sm font-medium">Add new task...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4 p-4 bg-gray-50 dark:bg-gray-700">
+    <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4 p-4 bg-card rounded-xl border border-border/40 shadow-sm animate-in fade-in zoom-in-95 duration-200">
       <div className="col-span-8">
         <Input
           placeholder="Enter task title..."

@@ -20,23 +20,30 @@ export default function Home() {
         </div>
       </SignedOut>
 
-      <SignedIn>
+    <SignedIn>
         <MainAppWrapper>
-          <div className="min-h-screen">
-            <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="min-h-screen bg-background/50">
+            <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+              <div className="container mx-auto px-4 py-3 h-14 flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <h1 className="text-xl font-semibold">TaskHub</h1>
-                  <span className="text-sm text-muted-foreground">Personal Workspace</span>
+                  <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">TaskHub</h1>
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground border border-border/50">Personal Workspace</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4">
                   <ThemeToggle />
-                  <UserButton />
+                  <div className="h-6 w-px bg-border/50" />
+                  <UserButton 
+                    appearance={{
+                      elements: {
+                        avatarBox: "w-8 h-8 ring-2 ring-primary/10 hover:ring-primary/20 transition-all duration-200"
+                      }
+                    }}
+                  />
                 </div>
               </div>
             </header>
 
-            <main className="container mx-auto px-4 py-6">
+            <main className="container mx-auto px-4 py-8">
               <KanbanBoardComponent />
             </main>
           </div>

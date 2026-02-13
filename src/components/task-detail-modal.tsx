@@ -9,14 +9,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { FileDropzone } from '@/components/file-dropzone';
 import { ImagePreview, ImageThumbnailGrid } from '@/components/image-preview';
-import { 
-  Calendar, 
-  Clock, 
-  User, 
-  Flag, 
-  Paperclip, 
-  Edit3, 
-  Save, 
+import {
+  Calendar,
+  Clock,
+  User,
+  Flag,
+  Paperclip,
+  Edit3,
+  Save,
   X,
   Hash,
   Download,
@@ -124,7 +124,7 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
 
   const handleAddSubtask = async () => {
     if (!newSubtaskTitle.trim() || !task) return;
-    
+
     try {
       const response = await fetch('/api/tasks', {
         method: 'POST',
@@ -137,10 +137,10 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
           priority: 'NONE'
         })
       });
-      
+
       if (response.ok) {
         const newSubtask = await response.json();
-        
+
         // Update local task state with the new subtask
         setEditedTask(prev => {
           if (!prev) return prev;
@@ -154,11 +154,11 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
           };
           return updatedTask;
         });
-        
+
         // Reset form
         setNewSubtaskTitle('');
         setShowAddSubtask(false);
-        
+
         // Call onSave to notify parent component of changes (if provided)
         if (onSave) {
           const updatedTask = {
@@ -184,13 +184,13 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
       });
-      
+
       if (response.ok) {
         // Update local task state with the updated subtask status
         setEditedTask(prev => {
           if (!prev || !prev.sub_tasks) return prev;
-          const updatedSubtasks = prev.sub_tasks.map(subtask => 
-            subtask.id === subtaskId 
+          const updatedSubtasks = prev.sub_tasks.map(subtask =>
+            subtask.id === subtaskId
               ? { ...subtask, status: newStatus }
               : subtask
           );
@@ -199,11 +199,11 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
             sub_tasks: updatedSubtasks
           };
         });
-        
+
         // Call onSave to notify parent component of changes (if provided)
         if (onSave && task.sub_tasks) {
-          const updatedSubtasks = task.sub_tasks.map(subtask => 
-            subtask.id === subtaskId 
+          const updatedSubtasks = task.sub_tasks.map(subtask =>
+            subtask.id === subtaskId
               ? { ...subtask, status: newStatus }
               : subtask
           );
@@ -222,11 +222,11 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
   const getSubtaskProgress = () => {
     const currentTask = editedTask || task;
     if (!currentTask?.sub_tasks || currentTask.sub_tasks.length === 0) return { completed: 0, total: 0, percentage: 0 };
-    
+
     const completed = currentTask.sub_tasks.filter(st => st.status === 'DONE').length;
     const total = currentTask.sub_tasks.length;
     const percentage = Math.round((completed / total) * 100);
-    
+
     return { completed, total, percentage };
   };
 
@@ -250,7 +250,7 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
 
   const getFilteredFiles = (files: typeof task.attachments) => {
     if (!fileSearchQuery || !files) return files;
-    return files.filter(file => 
+    return files.filter(file =>
       file.file_name.toLowerCase().includes(fileSearchQuery.toLowerCase())
     );
   };
@@ -265,7 +265,7 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
       const response = await fetch(`/api/attachments/${attachmentId}`, {
         method: 'DELETE'
       });
-      
+
       if (response.ok) {
         // Keep dialog open and notify parent if callback provided
         if (onSave) {
@@ -320,10 +320,10 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-6xl !w-full max-h-[95vh] overflow-hidden p-0">
+      <DialogContent className="!max-w-5xl !w-full max-h-[95vh] overflow-hidden p-0 gap-0 sm:rounded-2xl shadow-2xl transition-all duration-300">
         <DialogTitle className="sr-only">Task Details</DialogTitle>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50">
+        <div className="flex items-center justify-between px-8 py-5 border-b border-border/40 bg-background/50 backdrop-blur-sm sticky top-0 z-20">
           <div className="flex-1">
             {isEditing ? (
               <Input
@@ -335,16 +335,16 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
             ) : (
               <h1 className="text-xl font-semibold text-gray-900">{task.title}</h1>
             )}
-            
+
             {/* Status and Priority Badges */}
             <div className="flex items-center gap-3 mt-2">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-500">Status:</span>
-                <Badge className={statusConfig[task.status].color}>
+                <span className="text-sm font-medium text-muted-foreground">Status:</span>
+                <Badge variant="outline" className={`${statusConfig[task.status].color} border-transparent bg-opacity-10`}>
                   {statusConfig[task.status].label}
                 </Badge>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <Flag className="w-4 h-4 text-gray-500" />
                 <span className="text-sm font-medium text-gray-500">Priority:</span>
@@ -361,7 +361,7 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
                     {subtaskProgress.completed}/{subtaskProgress.total} subtasks
                   </span>
                   <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-green-500 transition-all duration-300"
                       style={{ width: `${subtaskProgress.percentage}%` }}
                     />
@@ -395,196 +395,197 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
 
         {/* Main Content - Single Column Layout */}
         <div className="p-6 overflow-y-auto max-h-[calc(95vh-120px)] space-y-8">
-            
-            {/* Description Section */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-gray-500" />
-                <h3 className="text-lg font-semibold text-gray-900">Description</h3>
-              </div>
-              {isEditing ? (
-                <Textarea
-                  value={editedTask?.description || ''}
-                  onChange={(e) => setEditedTask(prev => prev ? { ...prev, description: e.target.value } : null)}
-                  placeholder="Add detailed information about this task..."
-                  className="min-h-32 text-base"
-                />
-              ) : (
-                <div className="bg-gray-50 rounded-lg p-4 min-h-32">
-                  <p className="text-base text-gray-700 whitespace-pre-wrap leading-relaxed">
-                    {task.description || (
-                      <span className="text-gray-400 italic">No description added yet.</span>
-                    )}
-                  </p>
-                </div>
-              )}
-            </div>
 
-            {/* Subtasks Section */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-gray-500" />
-                  <h3 className="text-lg font-semibold text-gray-900">Subtasks</h3>
-                  <Badge variant="secondary" className="ml-2">
-                    {subtaskProgress.completed}/{subtaskProgress.total}
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-2">
+          {/* Description Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-gray-500" />
+              <h3 className="text-lg font-semibold text-gray-900">Description</h3>
+            </div>
+            {isEditing ? (
+              <Textarea
+                value={editedTask?.description || ''}
+                onChange={(e) => setEditedTask(prev => prev ? { ...prev, description: e.target.value } : null)}
+                placeholder="Add detailed information about this task..."
+                className="min-h-32 text-base"
+              />
+            ) : (
+              <div className="bg-gray-50 rounded-lg p-4 min-h-32">
+                <p className="text-base text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  {task.description || (
+                    <span className="text-gray-400 italic">No description added yet.</span>
+                  )}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Subtasks Section */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Target className="w-5 h-5 text-gray-500" />
+                <h3 className="text-lg font-semibold text-gray-900">Subtasks</h3>
+                <Badge variant="secondary" className="ml-2">
+                  {subtaskProgress.completed}/{subtaskProgress.total}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowAddSubtask(true)}
+                  className="h-8"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Subtask
+                </Button>
+                {(editedTask || task)?.sub_tasks && (editedTask || task)!.sub_tasks!.length > 0 && (
                   <Button
                     size="sm"
-                    variant="outline"
-                    onClick={() => setShowAddSubtask(true)}
-                    className="h-8"
+                    variant="ghost"
+                    onClick={() => setShowSubtasks(!showSubtasks)}
+                    className="h-8 px-2"
                   >
-                    <Plus className="w-4 h-4 mr-1" />
-                    Add Subtask
+                    {showSubtasks ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
+                    )}
                   </Button>
-                  {(editedTask || task)?.sub_tasks && (editedTask || task)!.sub_tasks!.length > 0 && (
+                )}
+              </div>
+            </div>
+
+            {/* Add Subtask Form */}
+            {showAddSubtask && (
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="space-y-3">
+                  <Input
+                    value={newSubtaskTitle}
+                    onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                    placeholder="Enter subtask title..."
+                    className="bg-white"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddSubtask();
+                      }
+                      if (e.key === 'Escape') {
+                        setShowAddSubtask(false);
+                        setNewSubtaskTitle('');
+                      }
+                    }}
+                    autoFocus
+                  />
+                  <div className="flex justify-end gap-2">
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => setShowSubtasks(!showSubtasks)}
-                      className="h-8 px-2"
-                    >
-                      {showSubtasks ? (
-                        <ChevronDown className="w-4 h-4" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4" />
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              {/* Add Subtask Form */}
-              {showAddSubtask && (
-                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="space-y-3">
-                    <Input
-                      value={newSubtaskTitle}
-                      onChange={(e) => setNewSubtaskTitle(e.target.value)}
-                      placeholder="Enter subtask title..."
-                      className="bg-white"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAddSubtask();
-                        }
-                        if (e.key === 'Escape') {
-                          setShowAddSubtask(false);
-                          setNewSubtaskTitle('');
-                        }
+                      onClick={() => {
+                        setShowAddSubtask(false);
+                        setNewSubtaskTitle('');
                       }}
-                      autoFocus
-                    />
-                    <div className="flex justify-end gap-2">
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        onClick={() => {
-                          setShowAddSubtask(false);
-                          setNewSubtaskTitle('');
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                      <Button size="sm" onClick={handleAddSubtask} disabled={!newSubtaskTitle.trim()}>
-                        <Plus className="w-4 h-4 mr-1" />
-                        Add
-                      </Button>
-                    </div>
+                    >
+                      Cancel
+                    </Button>
+                    <Button size="sm" onClick={handleAddSubtask} disabled={!newSubtaskTitle.trim()}>
+                      <Plus className="w-4 h-4 mr-1" />
+                      Add
+                    </Button>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Subtask List */}
-              {showSubtasks && (editedTask || task)?.sub_tasks && (editedTask || task)!.sub_tasks!.length > 0 && (
-                <div className="space-y-3">
-                  {((editedTask || task)?.sub_tasks || []).map((subtask) => {
-                    const StatusIcon = subtask.status === 'DONE' ? CheckCircle2 : 
-                                     subtask.status === 'IN_PROGRESS' ? Timer : Circle;
-                    const statusColor = subtask.status === 'DONE' ? 'text-green-600' : 
-                                      subtask.status === 'IN_PROGRESS' ? 'text-blue-600' : 'text-gray-400';
-                    
-                    return (
-                      <div key={subtask.id} className="flex items-start gap-3 p-4 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
-                        <button
-                          onClick={() => {
-                            const nextStatus = subtask.status === 'TODO' ? 'IN_PROGRESS' : 
-                                             subtask.status === 'IN_PROGRESS' ? 'DONE' : 'TODO';
-                            handleSubtaskStatusChange(subtask.id, nextStatus);
-                          }}
-                          className="shrink-0 mt-0.5"
-                        >
-                          <StatusIcon className={`w-5 h-5 ${statusColor} hover:scale-110 transition-transform`} />
-                        </button>
-                        
-                        <div className="flex-1 min-w-0">
-                          <div className={`text-base font-medium ${subtask.status === 'DONE' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
-                            {subtask.title}
+            {/* Subtask List */}
+            {showSubtasks && (editedTask || task)?.sub_tasks && (editedTask || task)!.sub_tasks!.length > 0 && (
+              <div className="space-y-3">
+                {((editedTask || task)?.sub_tasks || []).map((subtask) => {
+                  const StatusIcon = subtask.status === 'DONE' ? CheckCircle2 :
+                    subtask.status === 'IN_PROGRESS' ? Timer : Circle;
+                  const statusColor = subtask.status === 'DONE' ? 'text-green-500' :
+                    subtask.status === 'IN_PROGRESS' ? 'text-blue-500' : 'text-muted-foreground';
+
+                  return (
+                    <div key={subtask.id} className="group flex items-start gap-3 p-4 bg-card hover:bg-accent/5 border border-border/50 rounded-xl transition-all duration-200 hover:shadow-sm">
+                      <button
+                        onClick={() => {
+                          const nextStatus = subtask.status === 'TODO' ? 'IN_PROGRESS' :
+                            subtask.status === 'IN_PROGRESS' ? 'DONE' : 'TODO';
+                          handleSubtaskStatusChange(subtask.id, nextStatus);
+                        }}
+                        className="shrink-0 mt-0.5 rounded-full hover:bg-secondary p-0.5 transition-colors"
+                      >
+                        <StatusIcon className={`w-5 h-5 ${statusColor} transition-all duration-300 group-hover:scale-110`} />
+                      </button>
+
+                      <div className="flex-1 min-w-0">
+                        <div className={`text-base font-medium ${subtask.status === 'DONE' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                          {subtask.title}
+                        </div>
+                        {subtask.description && (
+                          <div className="text-sm text-gray-600 mt-1">
+                            {subtask.description}
                           </div>
-                          {subtask.description && (
-                            <div className="text-sm text-gray-600 mt-1">
-                              {subtask.description}
+                        )}
+
+                        <div className="flex items-center gap-3 mt-2">
+                          {subtask.priority !== 'NONE' && (
+                            <Badge className={priorityConfig[subtask.priority].color}>
+                              {priorityConfig[subtask.priority].label}
+                            </Badge>
+                          )}
+                          {subtask.assignee && (
+                            <div className="flex items-center gap-1">
+                              <User className="w-3 h-3 text-gray-400" />
+                              <span className="text-xs text-gray-600">{subtask.assignee.user_id}</span>
                             </div>
                           )}
-                          
-                          <div className="flex items-center gap-3 mt-2">
-                            {subtask.priority !== 'NONE' && (
-                              <Badge className={priorityConfig[subtask.priority].color}>
-                                {priorityConfig[subtask.priority].label}
-                              </Badge>
-                            )}
-                            {subtask.assignee && (
-                              <div className="flex items-center gap-1">
-                                <User className="w-3 h-3 text-gray-400" />
-                                <span className="text-xs text-gray-600">{subtask.assignee.user_id}</span>
-                              </div>
-                            )}
-                            {subtask.due_date && (
-                              <div className="flex items-center gap-1">
-                                <Calendar className="w-3 h-3 text-gray-400" />
-                                <span className="text-xs text-gray-600">
-                                  {new Date(subtask.due_date).toLocaleDateString('en-US')}
-                                </span>
-                              </div>
-                            )}
-                          </div>
+                          {subtask.due_date && (
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3 text-gray-400" />
+                              <span className="text-xs text-gray-600">
+                                {new Date(subtask.due_date).toLocaleDateString('en-US')}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
-              {/* Empty state */}
-              {(!(editedTask || task)?.sub_tasks || (editedTask || task)!.sub_tasks!.length === 0) && !showAddSubtask && (
-                <div className="text-center py-8 text-gray-500 border border-dashed border-gray-300 rounded-lg bg-gray-50">
-                  <Target className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-                  <p className="text-base font-medium">No subtasks yet</p>
-                  <p className="text-sm mt-1">You can break this task into smaller parts</p>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setShowAddSubtask(true)}
-                    className="mt-3"
-                  >
-                    <Plus className="w-4 h-4 mr-1" />
-                    First Subtask
-                  </Button>
+            {(!(editedTask || task)?.sub_tasks || (editedTask || task)!.sub_tasks!.length === 0) && !showAddSubtask && (
+              <div className="text-center py-10 text-muted-foreground border border-dashed border-border/60 rounded-xl bg-secondary/5 hover:bg-secondary/10 transition-colors">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-secondary flex items-center justify-center">
+                  <Target className="w-6 h-6 text-muted-foreground/70" />
                 </div>
-              )}
-            </div>
+                <p className="text-base font-medium text-foreground">No subtasks yet</p>
+                <p className="text-sm mt-1">You can break this task into smaller parts</p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowAddSubtask(true)}
+                  className="mt-3"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  First Subtask
+                </Button>
+              </div>
+            )}
+          </div>
 
-            {/* Task Info and Meta Data */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Task Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-gray-500" />
-                  Task Information
-                </h3>
+          {/* Task Info and Meta Data */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Task Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-gray-500" />
+                Task Information
+              </h3>
 
               {/* Assignee */}
               {task.assignee && (
@@ -615,7 +616,7 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
                       <div>
                         <div className="text-sm font-medium text-gray-700 mb-1">Start Date</div>
                         <div className="text-sm text-gray-900">
-                          {new Date(task.start_date).toLocaleDateString('en-US', { 
+                          {new Date(task.start_date).toLocaleDateString('en-US', {
                             weekday: 'long',
                             year: 'numeric',
                             month: 'long',
@@ -625,14 +626,14 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
                       </div>
                     </div>
                   )}
-                  
+
                   {task.due_date && (
                     <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-200">
                       <Calendar className="w-5 h-5 text-gray-500 mt-0.5" />
                       <div>
                         <div className="text-sm font-medium text-gray-700 mb-1">Due Date</div>
                         <div className="text-sm text-gray-900">
-                          {new Date(task.due_date).toLocaleDateString('en-US', { 
+                          {new Date(task.due_date).toLocaleDateString('en-US', {
                             weekday: 'long',
                             year: 'numeric',
                             month: 'long',
@@ -658,7 +659,7 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
                     <span
                       key={tag.id}
                       className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border"
-                      style={{ 
+                      style={{
                         backgroundColor: tag.color ? `${tag.color}20` : '#f3f4f6',
                         color: tag.color || '#374151',
                         borderColor: tag.color ? `${tag.color}40` : '#d1d5db'
@@ -675,7 +676,7 @@ export function TaskDetailModal({ task, open, onOpenChange, onSave }: TaskDetail
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <Paperclip className="w-5 h-5 text-gray-500" />
-Files
+                Files
                 <Badge variant="secondary" className="ml-2">
                   {task.attachments?.length || 0}
                 </Badge>
@@ -695,7 +696,7 @@ Files
                       file_url: uploadedFile.fileUrl,
                       uploaded_at: new Date().toISOString()
                     };
-                    
+
                     const updatedTask = {
                       ...task,
                       attachments: [...(task.attachments || []), newAttachment],
@@ -731,7 +732,7 @@ Files
                     <span className="text-base font-medium text-gray-700">Images</span>
                     <Badge variant="outline">{filteredImageFiles.length}</Badge>
                   </div>
-                  
+
                   <ImageThumbnailGrid
                     images={filteredImageFiles.map(file => ({
                       id: file.id,
@@ -753,12 +754,12 @@ Files
                     <span className="text-base font-medium text-gray-700">Documents</span>
                     <Badge variant="outline">{filteredDocumentFiles.length}</Badge>
                   </div>
-                  
+
                   <div className="space-y-2 max-h-64 overflow-y-auto">
                     {filteredDocumentFiles.map((file) => {
                       const fileExtension = file.file_name.split('.').pop()?.toLowerCase();
                       const isPDF = fileExtension === 'pdf';
-                      
+
                       return (
                         <div key={file.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
                           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -780,7 +781,7 @@ Files
                               </span>
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center gap-1 flex-shrink-0">
                             {isPDF && (
                               <Button size="sm" variant="ghost" asChild>
@@ -794,8 +795,8 @@ Files
                                 <Download className="w-4 h-4" />
                               </a>
                             </Button>
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               variant="ghost"
                               onClick={() => handleDeleteAttachment(file.id)}
                               className="text-red-500 hover:text-red-700"
@@ -824,14 +825,14 @@ Files
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-gray-500" />
-Timestamps
+                Timestamps
               </h3>
-              
+
               <div className="space-y-2 text-sm text-gray-600">
                 {task.created_at && (
                   <div className="flex justify-between">
                     <span>Created:</span>
-                    <span>{new Date(task.created_at).toLocaleDateString('en-US', { 
+                    <span>{new Date(task.created_at).toLocaleDateString('en-US', {
                       day: 'numeric',
                       month: 'long',
                       year: 'numeric',
@@ -843,9 +844,9 @@ Timestamps
                 {task.updated_at && (
                   <div className="flex justify-between">
                     <span>Last updated:</span>
-                    <span>{new Date(task.updated_at).toLocaleDateString('en-US', { 
+                    <span>{new Date(task.updated_at).toLocaleDateString('en-US', {
                       day: 'numeric',
-                      month: 'long', 
+                      month: 'long',
                       year: 'numeric',
                       hour: '2-digit',
                       minute: '2-digit'

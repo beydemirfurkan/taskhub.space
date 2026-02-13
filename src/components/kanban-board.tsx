@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/nextjs';
-import { 
-  KanbanProvider, 
-  KanbanBoard, 
-  KanbanHeader, 
-  KanbanCards, 
+import {
+  KanbanProvider,
+  KanbanBoard,
+  KanbanHeader,
+  KanbanCards,
   KanbanCard,
-  type DragEndEvent 
+  type DragEndEvent
 } from '@/components/ui/shadcn-io/kanban';
 import { TaskCard } from './task-card';
 import { AddTaskInput } from './add-task-input';
@@ -20,6 +20,7 @@ import { ViewToggle, ViewMode } from './view-toggle';
 import { TaskListView } from './task-list-view';
 import { Button } from './ui/button';
 import { Users, Hash } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Task {
   id: string;
@@ -103,7 +104,7 @@ export function KanbanBoardComponent() {
   const [availableTags, setAvailableTags] = useState<Array<{ id: string; name: string; color: string; }>>([]);
   const [availableAssignees, setAvailableAssignees] = useState<Array<{ id: string; user_id: string; }>>([]);
   const [currentView, setCurrentView] = useState<ViewMode>('kanban');
-  
+
   // Mock workspace data - replace with real data
   const workspaceId = 'default-workspace';
   const workspaceName = 'Personal Workspace';
@@ -172,7 +173,7 @@ export function KanbanBoardComponent() {
     // Apply search
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(task => 
+      filtered = filtered.filter(task =>
         task.title.toLowerCase().includes(query) ||
         task.description?.toLowerCase().includes(query) ||
         task.tags?.some(({ tag }) => tag.name.toLowerCase().includes(query))
@@ -184,17 +185,17 @@ export function KanbanBoardComponent() {
       filtered = filtered.filter(task => filters.status!.includes(task.status));
     }
     if (filters.priority?.length) {
-      filtered = filtered.filter(task => 
+      filtered = filtered.filter(task =>
         task.priority !== 'NONE' && filters.priority!.includes(task.priority as 'LOW' | 'MEDIUM' | 'HIGH')
       );
     }
     if (filters.assignee?.length) {
-      filtered = filtered.filter(task => 
+      filtered = filtered.filter(task =>
         task.assignee && filters.assignee!.includes(task.assignee.user_id)
       );
     }
     if (filters.tags?.length) {
-      filtered = filtered.filter(task => 
+      filtered = filtered.filter(task =>
         task.tags?.some(({ tag }) => filters.tags!.includes(tag.id))
       );
     }
@@ -269,9 +270,9 @@ export function KanbanBoardComponent() {
           attachments: updated.attachments,
           _count: updated._count,
         };
-        
-        setTasks(prevTasks => 
-          prevTasks.map(task => 
+
+        setTasks(prevTasks =>
+          prevTasks.map(task =>
             task.id === updatedTask.id ? formattedTask : task
           )
         );
@@ -292,7 +293,7 @@ export function KanbanBoardComponent() {
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    
+
     if (!over || active.id === over.id) return;
 
     const activeTask = tasks.find(task => task.id === active.id);
@@ -301,7 +302,7 @@ export function KanbanBoardComponent() {
     // Check if dropped on a column or another task
     let newStatus: string;
     const overColumn = columns.find(col => col.id === over.id);
-    
+
     if (overColumn) {
       // Dropped on a column
       newStatus = overColumn.id;
@@ -313,8 +314,8 @@ export function KanbanBoardComponent() {
 
     if (activeTask.status !== newStatus) {
       // Optimistically update UI first
-      const updatedTasks = tasks.map(task => 
-        task.id === activeTask.id 
+      const updatedTasks = tasks.map(task =>
+        task.id === activeTask.id
           ? { ...task, status: newStatus as Task['status'], column: newStatus }
           : task
       );
@@ -428,8 +429,8 @@ export function KanbanBoardComponent() {
               <Hash className="w-4 h-4" />
             </Button>
           } />
-          <InviteUsers 
-            workspaceId={workspaceId} 
+          <InviteUsers
+            workspaceId={workspaceId}
             workspaceName={workspaceName}
             trigger={
               <Button variant="outline" size="sm">
@@ -438,7 +439,7 @@ export function KanbanBoardComponent() {
             }
           />
         </div>
-        
+
         <div className="flex items-center gap-3">
           <ViewToggle view={currentView} onViewChange={setCurrentView} />
           <TaskSearchFilter
@@ -451,7 +452,7 @@ export function KanbanBoardComponent() {
         </div>
       </div>
 
-      
+
 
       {/* Content Area */}
       {currentView === 'kanban' ? (
@@ -463,15 +464,21 @@ export function KanbanBoardComponent() {
         >
           {(column) => (
             <KanbanBoard key={column.id} id={column.id}>
-              <KanbanHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 border-b border-gray-200 dark:border-gray-600">
+              <KanbanHeader className="bg-background/50 backdrop-blur-md border-b border-border/40 sticky top-0 z-10">
                 <div className="flex items-center justify-between p-4">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-gray-900 dark:text-white">{column.name}</span>
-                    <span className="bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-2 py-1 rounded-full border dark:border-gray-600">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "w-2 h-2 rounded-full",
+                      column.id === 'TODO' && "bg-slate-400",
+                      column.id === 'IN_PROGRESS' && "bg-blue-500",
+                      column.id === 'DONE' && "bg-emerald-500"
+                    )} />
+                    <span className="font-semibold text-foreground tracking-tight">{column.name}</span>
+                    <span className="bg-secondary/50 text-secondary-foreground text-xs font-medium px-2 py-0.5 rounded-full border border-border/50">
                       {filteredTasks.filter(task => task.column === column.id).length}
                     </span>
                   </div>
-                  
+
                   {searchQuery || Object.keys(filters).some(key => {
                     const value = filters[key as keyof TaskFilters];
                     return Array.isArray(value) ? value.length > 0 : !!value;
@@ -482,11 +489,11 @@ export function KanbanBoardComponent() {
                   ) : null}
                 </div>
               </KanbanHeader>
-              <KanbanCards id={column.id} className="p-4 space-y-3">
+              <KanbanCards id={column.id} className="p-3 space-y-3 bg-secondary/5 min-h-[calc(100vh-12rem)]">
                 {(task) => (
                   <KanbanCard key={task.id} id={task.id} name={task.name} column={task.column}>
-                    <TaskCard 
-                      task={task as Task} 
+                    <TaskCard
+                      task={task as Task}
                       onClick={() => handleTaskClick(task as Task)}
                       className="w-full"
                     />
@@ -495,8 +502,8 @@ export function KanbanBoardComponent() {
               </KanbanCards>
               {column.id === 'TODO' && (
                 <div className="p-4">
-                  <AddTaskInput 
-                    onTaskCreate={handleTaskCreate} 
+                  <AddTaskInput
+                    onTaskCreate={handleTaskCreate}
                     availableTags={availableTags}
                   />
                 </div>
@@ -505,7 +512,7 @@ export function KanbanBoardComponent() {
           )}
         </KanbanProvider>
       ) : (
-        <TaskListView 
+        <TaskListView
           tasks={filteredTasks}
           onTaskClick={handleTaskClick}
           onTaskCreate={handleTaskCreate}
@@ -541,9 +548,9 @@ export function KanbanBoardComponent() {
                   attachments: updated.attachments,
                   _count: updated._count,
                 };
-                
-                setTasks(prevTasks => 
-                  prevTasks.map(task => 
+
+                setTasks(prevTasks =>
+                  prevTasks.map(task =>
                     task.id === taskId ? formattedTask : task
                   )
                 );

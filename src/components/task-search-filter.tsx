@@ -5,12 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { 
-  Search, 
-  X, 
-  Calendar, 
-  User, 
-  Flag, 
+import {
+  Search,
+  X,
+  Calendar,
+  User,
+  Flag,
   Hash,
   SlidersHorizontal,
   CheckSquare
@@ -54,12 +54,12 @@ const priorityOptions = [
   { value: 'HIGH', label: 'High', color: 'bg-red-100 text-red-700' }
 ];
 
-export function TaskSearchFilter({ 
-  onSearch, 
-  onFilter, 
-  availableTags = [], 
+export function TaskSearchFilter({
+  onSearch,
+  onFilter,
+  availableTags = [],
   availableAssignees = [],
-  className = '' 
+  className = ''
 }: TaskSearchFilterProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<TaskFilters>({});
@@ -92,7 +92,7 @@ export function TaskSearchFilter({
       const newArray = currentArray.includes(value)
         ? currentArray.filter(item => item !== value)
         : [...currentArray, value];
-      
+
       return {
         ...prev,
         [key]: newArray.length > 0 ? newArray : undefined
@@ -127,22 +127,22 @@ export function TaskSearchFilter({
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       {/* Search Input */}
-      <div className="relative flex-1 max-w-md">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+      <div className="relative flex-1 max-w-md group">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground/50 w-4 h-4 group-focus-within:text-primary transition-colors" />
         <Input
           placeholder="Search tasks..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
+          className="pl-10 border-border/40 bg-background/50 focus-visible:ring-1 focus-visible:ring-primary/20 focus-visible:border-primary/50 transition-all rounded-lg h-9"
         />
         {searchQuery && (
           <Button
             size="sm"
             variant="ghost"
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-5 w-5 p-0 hover:bg-muted rounded-md"
             onClick={() => setSearchQuery('')}
           >
-            <X className="w-3 h-3" />
+            <X className="w-3 h-3 text-muted-foreground" />
           </Button>
         )}
       </div>
@@ -150,18 +150,19 @@ export function TaskSearchFilter({
       {/* Filter Button */}
       <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className="relative">
-            <SlidersHorizontal className="w-4 h-4" />
+          <Button variant="outline" size="sm" className={`relative h-9 rounded-lg px-4 border-dashed border-border/60 hover:border-primary/50 hover:bg-primary/5 transition-all ${isFilterOpen ? 'bg-primary/5 border-primary/50 text-primary' : ''}`}>
+            <SlidersHorizontal className="w-3.5 h-3.5 mr-2" />
+            <span className="text-xs font-medium">Filter</span>
             {getActiveFilterCount() > 0 && (
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs flex items-center justify-center bg-blue-500">
+              <Badge className="ml-2 h-5 min-w-[1.25rem] px-1 text-[10px] flex items-center justify-center bg-primary text-primary-foreground border-none rounded-md">
                 {getActiveFilterCount()}
               </Badge>
             )}
           </Button>
         </PopoverTrigger>
-        
-        <PopoverContent className="w-80" align="end">
-          <div className="space-y-4">
+
+        <PopoverContent className="w-80 p-5 rounded-2xl shadow-xl border-border/50" align="end">
+          <div className="space-y-5">
             {/* Header */}
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium">Filters</h3>
@@ -175,9 +176,9 @@ export function TaskSearchFilter({
 
             {/* Status Filter */}
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <CheckSquare className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium">Status</span>
+              <div className="flex items-center gap-2 mb-2">
+                <CheckSquare className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</span>
               </div>
               <div className="flex flex-wrap gap-1">
                 {statusOptions.map(option => (
@@ -186,11 +187,10 @@ export function TaskSearchFilter({
                     size="sm"
                     variant={filters.status?.includes(option.value as 'TODO' | 'IN_PROGRESS' | 'DONE') ? "default" : "outline"}
                     onClick={() => toggleArrayFilter('status', option.value)}
-                    className={`text-xs ${
-                      filters.status?.includes(option.value as 'TODO' | 'IN_PROGRESS' | 'DONE') 
-                        ? '' 
-                        : option.color
-                    }`}
+                    className={`text-xs h-7 rounded-md border-dashed ${filters.status?.includes(option.value as 'TODO' | 'IN_PROGRESS' | 'DONE')
+                      ? 'border-transparent'
+                      : 'border-border/60 text-muted-foreground hover:text-foreground'
+                      } ${filters.status?.includes(option.value as 'TODO' | 'IN_PROGRESS' | 'DONE') ? '' : option.color.split(' ')[0] + '/0'} `}
                   >
                     {option.label}
                   </Button>
@@ -211,11 +211,10 @@ export function TaskSearchFilter({
                     size="sm"
                     variant={filters.priority?.includes(option.value as 'LOW' | 'MEDIUM' | 'HIGH') ? "default" : "outline"}
                     onClick={() => toggleArrayFilter('priority', option.value)}
-                    className={`text-xs ${
-                      filters.priority?.includes(option.value as 'LOW' | 'MEDIUM' | 'HIGH') 
-                        ? '' 
-                        : option.color
-                    }`}
+                    className={`text-xs ${filters.priority?.includes(option.value as 'LOW' | 'MEDIUM' | 'HIGH')
+                      ? ''
+                      : option.color
+                      }`}
                   >
                     {option.label}
                   </Button>
@@ -240,7 +239,7 @@ export function TaskSearchFilter({
                         onChange={() => toggleArrayFilter('assignee', assignee.id)}
                         className="rounded"
                       />
-                      <label 
+                      <label
                         htmlFor={`assignee-${assignee.id}`}
                         className="text-xs text-gray-700 cursor-pointer"
                       >
@@ -264,12 +263,11 @@ export function TaskSearchFilter({
                     <button
                       key={tag.id}
                       onClick={() => toggleArrayFilter('tags', tag.id)}
-                      className={`inline-flex items-center px-2 py-1 rounded text-xs transition-opacity ${
-                        filters.tags?.includes(tag.id) 
-                          ? 'ring-2 ring-blue-500 opacity-100' 
-                          : 'opacity-70 hover:opacity-100'
-                      }`}
-                      style={{ 
+                      className={`inline-flex items-center px-2 py-1 rounded text-xs transition-opacity ${filters.tags?.includes(tag.id)
+                        ? 'ring-2 ring-blue-500 opacity-100'
+                        : 'opacity-70 hover:opacity-100'
+                        }`}
+                      style={{
                         backgroundColor: tag.color ? `${tag.color}30` : '#f3f4f6',
                         color: tag.color || '#374151'
                       }}

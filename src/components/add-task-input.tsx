@@ -67,8 +67,8 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
   };
 
   const toggleTag = (tagId: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tagId) 
+    setSelectedTags(prev =>
+      prev.includes(tagId)
         ? prev.filter(id => id !== tagId)
         : [...prev, tagId]
     );
@@ -76,47 +76,49 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
 
   if (!isExpanded) {
     return (
-      <div 
+      <div
         onClick={() => setIsExpanded(true)}
-        className="p-3 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-muted-foreground/50 transition-colors"
+        className="group p-3 border border-dashed border-border/40 rounded-xl cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all duration-300"
       >
-        <div className="flex items-center space-x-2 text-muted-foreground">
-          <Plus className="w-4 h-4" />
-          <span className="text-sm">Add new task...</span>
+        <div className="flex items-center space-x-2 text-muted-foreground group-hover:text-primary transition-colors">
+          <div className="bg-secondary group-hover:bg-primary/10 p-1 rounded-md transition-colors">
+            <Plus className="w-4 h-4" />
+          </div>
+          <span className="text-sm font-medium">Add new task...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 border border-gray-200 rounded-lg bg-white">
+    <form onSubmit={handleSubmit} className="p-4 border border-border/40 rounded-xl bg-card shadow-lg ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-200">
       <div className="space-y-4">
         <Input
-          placeholder="Task title..."
+          placeholder="What needs to be done?"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="border border-gray-200 px-3 py-2 text-sm font-medium focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500"
+          className="border-0 px-0 text-base font-semibold focus-visible:ring-0 placeholder:text-muted-foreground/50"
           autoFocus
         />
-        
+
         <Textarea
-          placeholder="Add description..."
+          placeholder="Add a description..."
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="border border-gray-200 px-3 py-2 text-sm resize-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500"
+          className="min-h-[80px] border-0 px-0 text-sm resize-none focus-visible:ring-0 placeholder:text-muted-foreground/50"
           rows={3}
         />
-        
+
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-6 px-2">
-                  <Calendar className="w-3 h-3 mr-1" />
-                  <span className="text-xs">Date</span>
+                <Button variant="outline" size="sm" className="h-7 px-2.5 rounded-full border-dashed border-border hover:border-primary/50 hover:bg-primary/5">
+                  <Calendar className="w-3.5 h-3.5 mr-1.5" />
+                  <span className="text-xs font-medium">Date</span>
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-80 p-3">
+              <PopoverContent className="w-80 p-3" align="start">
                 <div className="space-y-3">
                   <h4 className="font-medium text-sm">Dates</h4>
                   <div className="grid gap-2">
@@ -142,12 +144,12 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
                 </div>
               </PopoverContent>
             </Popover>
-            
+
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-6 px-2">
-                  <Flag className="w-3 h-3 mr-1" />
-                  <span className="text-xs">Priority</span>
+                <Button variant="outline" size="sm" className="h-7 px-2.5 rounded-full border-dashed border-border hover:border-primary/50 hover:bg-primary/5">
+                  <Flag className="w-3.5 h-3.5 mr-1.5" />
+                  <span className="text-xs font-medium">Priority</span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-48 p-2">
@@ -161,9 +163,9 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
                       onClick={() => setPriority(p)}
                       className="w-full justify-start text-xs"
                     >
-                      {p === 'NONE' ? 'None' : 
-                       p === 'LOW' ? 'Low' : 
-                       p === 'MEDIUM' ? 'Medium' : 'High'}
+                      {p === 'NONE' ? 'None' :
+                        p === 'LOW' ? 'Low' :
+                          p === 'MEDIUM' ? 'Medium' : 'High'}
                     </Button>
                   ))}
                 </div>
@@ -173,9 +175,9 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
             {availableTags.length > 0 && (
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-6 px-2">
-                    <Hash className="w-3 h-3 mr-1" />
-                    <span className="text-xs">Tags</span>
+                  <Button variant="outline" size="sm" className="h-7 px-2.5 rounded-full border-dashed border-border hover:border-primary/50 hover:bg-primary/5">
+                    <Hash className="w-3.5 h-3.5 mr-1.5" />
+                    <span className="text-xs font-medium">Tags</span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-64 p-3">
@@ -195,7 +197,7 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
                           />
                           <span
                             className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-                            style={{ 
+                            style={{
                               backgroundColor: tag.color ? `${tag.color}25` : '#f1f5f9',
                               color: tag.color || '#64748b',
                               border: `1px solid ${tag.color ? `${tag.color}40` : '#e2e8f0'}`
@@ -211,7 +213,7 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
               </Popover>
             )}
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Button type="button" variant="ghost" size="sm" onClick={handleCancel}>
               Cancel
@@ -221,7 +223,7 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
             </Button>
           </div>
         </div>
-        
+
         {(priority !== 'NONE' || dueDate || startDate || selectedTags.length > 0) && (
           <div className="flex items-center space-x-2 flex-wrap">
             {priority !== 'NONE' && (
@@ -245,7 +247,7 @@ export function AddTaskInput({ onTaskCreate, availableTags = [] }: AddTaskInputP
                 <Badge
                   key={tag.id}
                   className="text-xs"
-                  style={{ 
+                  style={{
                     backgroundColor: tag.color ? `${tag.color}25` : '#f1f5f9',
                     color: tag.color || '#64748b',
                     border: `1px solid ${tag.color ? `${tag.color}40` : '#e2e8f0'}`

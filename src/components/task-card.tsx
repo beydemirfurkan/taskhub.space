@@ -1,10 +1,10 @@
 // import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { 
-  Calendar, 
-  Clock, 
-  Paperclip, 
-  Hash, 
+import {
+  Calendar,
+  Clock,
+  Paperclip,
+  Hash,
   Flag,
   FileText,
   CheckCircle2,
@@ -48,29 +48,29 @@ interface TaskCardProps {
 }
 
 const priorityConfig = {
-  NONE: { 
-    label: '', 
-    icon: null, 
-    color: '', 
-    bgColor: '' 
+  NONE: {
+    label: '',
+    icon: null,
+    color: '',
+    bgColor: ''
   },
-  LOW: { 
-    label: 'Low', 
-    icon: Flag, 
-    color: 'text-emerald-600', 
-    bgColor: 'bg-emerald-50 border-emerald-200' 
+  LOW: {
+    label: 'Low',
+    icon: Flag,
+    color: 'text-emerald-600',
+    bgColor: 'bg-emerald-50 border-emerald-200'
   },
-  MEDIUM: { 
-    label: 'Medium', 
-    icon: Flag, 
-    color: 'text-amber-600', 
-    bgColor: 'bg-amber-50 border-amber-200' 
+  MEDIUM: {
+    label: 'Medium',
+    icon: Flag,
+    color: 'text-amber-600',
+    bgColor: 'bg-amber-50 border-amber-200'
   },
-  HIGH: { 
-    label: 'High', 
-    icon: AlertCircle, 
-    color: 'text-red-600', 
-    bgColor: 'bg-red-50 border-red-200' 
+  HIGH: {
+    label: 'High',
+    icon: AlertCircle,
+    color: 'text-red-600',
+    bgColor: 'bg-red-50 border-red-200'
   },
 };
 
@@ -97,7 +97,7 @@ function getDaysUntilDue(dueDate: string): { days: number; isOverdue: boolean; i
   const due = new Date(dueDate);
   const diffTime = due.getTime() - today.getTime();
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
+
   return {
     days: diffDays,
     isOverdue: diffDays < 0,
@@ -111,9 +111,9 @@ export function TaskCard({ task, onClick, className }: TaskCardProps) {
   const priorityInfo = priorityConfig[task.priority];
   const StatusIcon = statusInfo.icon;
   const PriorityIcon = priorityInfo.icon;
-  
+
   const dueDateInfo = task.due_date ? getDaysUntilDue(task.due_date) : null;
-  
+
   // Calculate subtask progress
   const getSubtaskProgress = () => {
     if (!task.sub_tasks || task.sub_tasks.length === 0) return null;
@@ -122,9 +122,9 @@ export function TaskCard({ task, onClick, className }: TaskCardProps) {
     const percentage = Math.round((completed / total) * 100);
     return { completed, total, percentage };
   };
-  
+
   const subtaskProgress = getSubtaskProgress();
-  
+
   const isHighPriority = task.priority === 'HIGH';
   const isOverdue = dueDateInfo?.isOverdue;
   const isDueToday = dueDateInfo?.isToday;
@@ -139,14 +139,14 @@ export function TaskCard({ task, onClick, className }: TaskCardProps) {
   };
 
   return (
-    <div 
+    <div
       className={cn(
-        "group relative bg-white dark:bg-gray-800 rounded-lg border transition-all duration-200 cursor-pointer hover:border-gray-400 dark:hover:border-gray-500",
-        "w-full p-3 space-y-2.5",
-        isOverdue && "border-red-300 bg-red-50/20 dark:bg-red-900/20",
-        isDueToday && "border-amber-300 bg-amber-50/20 dark:bg-amber-900/20", 
-        isHighPriority && !isOverdue && "border-red-200 bg-red-50/10 dark:bg-red-900/10",
-        !isOverdue && !isDueToday && !isHighPriority && "border-gray-200 dark:border-gray-600",
+        "group relative bg-card dark:bg-card/50 rounded-xl border transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-1",
+        "w-full p-4 space-y-3",
+        isOverdue && "border-red-200 bg-red-50/50 dark:bg-red-900/10 dark:border-red-900/30",
+        isDueToday && "border-amber-200 bg-amber-50/50 dark:bg-amber-900/10 dark:border-amber-900/30",
+        isHighPriority && !isOverdue && "border-red-100 bg-red-50/30 dark:bg-red-900/5 dark:border-red-900/20",
+        !isOverdue && !isDueToday && !isHighPriority && "border-border/60 hover:border-border dark:border-border/40",
         className
       )}
       onClick={handleClick}
@@ -165,7 +165,7 @@ export function TaskCard({ task, onClick, className }: TaskCardProps) {
 
       {/* Task Title */}
       <div className="pr-16">
-        <h3 className="font-medium text-gray-900 dark:text-white text-sm leading-tight line-clamp-2 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+        <h3 className="font-semibold text-foreground text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">
           {task.title}
         </h3>
       </div>
@@ -173,8 +173,8 @@ export function TaskCard({ task, onClick, className }: TaskCardProps) {
       {/* Description */}
       {task.description && (
         <div className="flex items-start gap-1.5">
-          <FileText className="w-3.5 h-3.5 text-gray-400 mt-0.5 shrink-0" />
-          <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed">
+          <FileText className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
+          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
             {task.description}
           </p>
         </div>
@@ -195,7 +195,7 @@ export function TaskCard({ task, onClick, className }: TaskCardProps) {
             </span>
           </div>
           <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-            <div 
+            <div
               className={cn(
                 "h-full transition-all duration-300 rounded-full",
                 subtaskProgress.percentage === 100 ? "bg-green-500" : "bg-blue-500"
@@ -215,7 +215,7 @@ export function TaskCard({ task, onClick, className }: TaskCardProps) {
               <span
                 key={tag.id}
                 className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
-                style={{ 
+                style={{
                   backgroundColor: tag.color ? `${tag.color}25` : '#f1f5f9',
                   color: tag.color || '#64748b',
                   border: `1px solid ${tag.color ? `${tag.color}40` : '#e2e8f0'}`
@@ -249,7 +249,7 @@ export function TaskCard({ task, onClick, className }: TaskCardProps) {
             </div>
           )}
         </div>
-        
+
         {task.due_date && (
           <div className={cn(
             "flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border",
@@ -263,9 +263,9 @@ export function TaskCard({ task, onClick, className }: TaskCardProps) {
               {isOverdue && `${Math.abs(dueDateInfo!.days)}d overdue`}
               {isDueToday && 'Today'}
               {isDueTomorrow && 'Tomorrow'}
-              {!isOverdue && !isDueToday && !isDueTomorrow && 
-                new Date(task.due_date).toLocaleDateString('en-US', { 
-                  day: 'numeric', 
+              {!isOverdue && !isDueToday && !isDueTomorrow &&
+                new Date(task.due_date).toLocaleDateString('en-US', {
+                  day: 'numeric',
                   month: 'short'
                 })
               }
@@ -290,7 +290,7 @@ export function TaskCard({ task, onClick, className }: TaskCardProps) {
             </div>
           )}
         </div>
-        
+
         {task.created_at && (
           <div className="flex items-center gap-1 text-xs text-gray-400">
             <Clock className="w-3 h-3" />
